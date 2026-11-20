@@ -39,27 +39,27 @@ The HUD shows the mission panel with a live timer and marker distance, cash, HP 
 
 The four shots in `screenshots/` are genuine gameplay frames, each staged from the same table the game runs on:
 
-1. `1-start.jpg` — wide establishing shot over the beachfront, JOB 1/8, $1,250
-2. `2-play.jpg` — low close chase on the beach road at 141 km/h, JOB 2/8, $3,750
-3. `3-chase.jpg` — night downtown pursuit under SKY-1, JOB 5/8, $13,200
-4. `4-mission.jpg` — on-foot yard sweep, JOB 4/8, $9,550
+1. `1-start.jpg`, wide establishing shot over the beachfront, JOB 1/8, $1,250
+2. `2-play.jpg`, low close chase on the beach road at 141 km/h, JOB 2/8, $3,750
+3. `3-chase.jpg`, night downtown pursuit under SKY-1, JOB 5/8, $13,200
+4. `4-mission.jpg`, on-foot yard sweep, JOB 4/8, $9,550
 
 A fifth scene, the loop closing at the lighthouse with $22,450, is prepared in the game as `?shot=end&seed=1` and noted here because the kit caps `screenshots/` at four files.
 
 ## Layout
 
-- `game/index.html` — page, import map, HUD markup and styling
-- `game/src/core/` — shared state and economy, input, renderer and sky, boot and main loop
-- `game/src/world/` — the city, procedural textures
-- `game/src/vehicles/` — hero car and driving, traffic, helicopter
-- `game/src/ai/` — police pursuit, pedestrians
-- `game/src/combat/` — on-foot combat and yard enemies
-- `game/src/characters/` — the player figure and crew are built in `combat/fight.js` and named in `core/config.js`
-- `game/src/missions/` — the eight-contract story loop
-- `game/src/ui/` — HUD, minimap and screenshot staging
-- `game/src/audio/` — synthesised sound and radio
-- `game/src/save/` — localStorage save and load
-- `game/vendor/` — Three.js 0.160.0, MIT, see `game/THIRD-PARTY-NOTICES.md`
+- `game/index.html`: page, import map, HUD markup and styling
+- `game/src/core/`: shared state and economy, input, renderer and sky, boot and main loop
+- `game/src/world/`: the city, procedural textures
+- `game/src/vehicles/`: hero car and driving, traffic, helicopter
+- `game/src/ai/`: police pursuit, pedestrians
+- `game/src/combat/`: on-foot combat and yard enemies
+- `game/src/characters/`: the player figure and crew are built in `combat/fight.js` and named in `core/config.js`
+- `game/src/missions/`: the eight-contract story loop
+- `game/src/ui/`: HUD, minimap and screenshot staging
+- `game/src/audio/`: synthesised sound and radio
+- `game/src/save/`: localStorage save and load
+- `game/vendor/`: Three.js 0.160.0, MIT, see `game/THIRD-PARTY-NOTICES.md`
 
 ## License
 
