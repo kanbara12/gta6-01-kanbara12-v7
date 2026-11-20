@@ -59,7 +59,7 @@ export function buildHeroCar() {
     const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.3, 10), trim);
     pipe.rotation.z = Math.PI / 2; add(pipe, -2.25, 0.42, s);
   }
-  const brakeMat = new THREE.MeshStandardMaterial({ color: 0xaa0000, emissive: 0xff1a1a, emissiveIntensity: 0.7 });
+  const brakeMat = new THREE.MeshStandardMaterial({ color: 0xaa0000, emissive: 0xff1a1a, emissiveIntensity: 1.6 });
   add(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.16, 1.5), brakeMat), -2.22, 0.78, 0);
   G.car.brakeGlow = brakeMat;
   const headMat = new THREE.MeshStandardMaterial({ color: 0xfff2cc, emissive: 0xffe9a8, emissiveIntensity: 1.4 });
@@ -136,7 +136,7 @@ export function updateCar(dt) {
   car.group.rotation.y = -car.heading;
   // Body roll into the turn, brake lights flare under braking.
   car.group.rotation.z = -steerIn * Math.min(0.09, spd * 0.002);
-  G.car.brakeGlow.emissiveIntensity = back && car.speed > 1 ? 2.6 : 0.7;
+  G.car.brakeGlow.emissiveIntensity = back && car.speed > 1 ? 2.6 : 1.6;
   G.fuel = Math.max(0, G.fuel - spd * dt * 0.004);
 }
 

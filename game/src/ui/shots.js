@@ -30,28 +30,34 @@ export function applyShot(name) {
   G.player.group.visible = false;
 
   if (name === 'start') {
-    G.car.x = -40; G.car.z = 0; G.car.heading = 0;
+    G.car.x = -60; G.car.z = 0; G.car.heading = 0;
     G.car.speed = s.speedKmh / 3.6;
+    if (G.sunDisc) { G.sunDisc.position.set(-250, 60, -120); G.sunDisc.lookAt(0, 40, 0); }
+    if (G.sunGlow) G.sunGlow.position.set(-250, 60, -120);
   } else if (name === 'play') {
-    G.car.x = -30; G.car.z = 0; G.car.heading = 0;
+    G.car.x = -45; G.car.z = 0; G.car.heading = 0;
     G.car.speed = s.speedKmh / 3.6;
     // Wanted stays 0, but four units answer and the heli works the sky,
     // the variant the plan allows for this frame.
     G.shotPolice = true; G.shotHeli = true;
-    G.heliState.angle = -0.6; G.heliState.radius = 26; G.heliState.height = 24;
+    G.heliState.angle = -0.4; G.heliState.radius = 30; G.heliState.height = 18;
+    clusterTraffic(G.car.x, [-5, 5]);
   } else if (name === 'chase') {
     G.car.x = 40; G.car.z = 120; G.car.heading = 0;
     G.car.speed = s.speedKmh / 3.6;
-    G.heliState.angle = 0.15; G.heliState.radius = 20; G.heliState.height = 20;
+    G.heliState.angle = 0.15; G.heliState.radius = 16; G.heliState.height = 15;
     G.driftPopupUntil = G.time + 999;
+    clusterTraffic(G.car.x, [110, 130]);
   } else if (name === 'mission') {
     G.car.inCar = false; G.player.onFoot = true;
     G.player.group.visible = true;
-    G.car.x = 118; G.car.z = 168; G.car.heading = 2.4; G.car.speed = 0;
-    G.player.x = 138; G.player.z = 172;
-    G.player.heading = Math.atan2(22, 4);
+    G.car.x = 110; G.car.z = 174; G.car.heading = 2.4; G.car.speed = 0;
+    G.player.x = 122; G.player.z = 168;
+    G.player.heading = Math.atan2(0.86, 0.5);
     G.shotFlash = true;
     G.flashUntil = 1e9;
+    // No police in the yard frame: the sweep is the player's job alone.
+    G.suppressPolice = true;
   } else if (name === 'end') {
     G.car.x = -238; G.car.z = -32; G.car.heading = 0.6; G.car.speed = 0;
     G.car.inCar = false; G.player.onFoot = true;
@@ -63,4 +69,17 @@ export function applyShot(name) {
   G.car.group.rotation.y = -G.car.heading;
   if (s.dialogue) showDialogue(s.dialogue, 999);
   return true;
+}
+
+// Pull a few traffic cars onto the same road near the hero car, so a
+// chase frame actually shows traffic instead of an empty road.
+function clusterTraffic(carX, laneRange) {
+  const offsets = [25, 55, -35, 80, -70, 115];
+  let i = 0;
+  for (const t of G.traffic) {
+    if (t.lane.axis !== 'x') continue;
+    if (t.lane.lane < laneRange[0] || t.lane.lane > laneRange[1]) continue;
+    t.pos = carX + offsets[i % offsets.length];
+    i++;
+  }
 }

@@ -5,21 +5,21 @@
 // HUD with a round minimap, synth audio, and save/load.
 
 import * as THREE from 'three';
-import { G, CFG, SHOTS, WEAPONS, repForJob } from './core/config.js';
-import { buildRenderer, buildSky } from './core/render.js';
-import { bindInput, held } from './core/input.js';
-import { buildCity } from './world/city.js';
-import { buildHeroCar, updateCar, updateSmoke } from './vehicles/hero.js';
-import { buildTraffic, updateTraffic } from './vehicles/traffic.js';
-import { buildHeli, updateHeli } from './vehicles/heli.js';
-import { ensurePolice, updatePolice } from './ai/police.js';
-import { buildWalkers, updateWalkers } from './ai/walkers.js';
-import { buildPlayerFigure, buildEnemies, tryShoot, updateCombat, updatePlayerOnFoot } from './combat/fight.js';
-import { setMission, updateMissions, buildStashes, currentMission } from './missions/story.js';
-import { buildHud, updateHud, showPause, showStart, showDialogue } from './ui/hud.js';
-import { applyShot } from './ui/shots.js';
-import { ensureAudio, updateAudio, setMuted, sfxShot, sfxUi } from './audio/sound.js';
-import { saveGame, loadGame } from './save/store.js';
+import { G, CFG, SHOTS, WEAPONS, repForJob } from './config.js';
+import { buildRenderer, buildSky } from './render.js';
+import { bindInput, held } from './input.js';
+import { buildCity } from '../world/city.js';
+import { buildHeroCar, updateCar, updateSmoke } from '../vehicles/hero.js';
+import { buildTraffic, updateTraffic } from '../vehicles/traffic.js';
+import { buildHeli, updateHeli } from '../vehicles/heli.js';
+import { ensurePolice, updatePolice } from '../ai/police.js';
+import { buildWalkers, updateWalkers } from '../ai/walkers.js';
+import { buildPlayerFigure, buildEnemies, tryShoot, updateCombat, updatePlayerOnFoot } from '../combat/fight.js';
+import { setMission, updateMissions, buildStashes, currentMission } from '../missions/story.js';
+import { buildHud, updateHud, showPause, showStart, showDialogue } from '../ui/hud.js';
+import { applyShot } from '../ui/shots.js';
+import { ensureAudio, updateAudio, setMuted, sfxShot, sfxUi } from '../audio/sound.js';
+import { saveGame, loadGame } from '../save/store.js';
 
 const params = new URLSearchParams(location.search);
 const shotName = params.get('shot');
@@ -44,6 +44,10 @@ buildHud();
 const clock = new THREE.Clock();
 const camTarget = new THREE.Vector3(0, 2, 0);
 const camPos = new THREE.Vector3(-30, 30, 40);
+// A warm light that rides above the hero car at night, so the car and
+// the road around it read in the dark instead of going black.
+const carLight = new THREE.PointLight(0xffc36a, 0, 48, 1.1);
+G.scene.add(carLight);
 
 function startGame() {
   ensureAudio();
@@ -53,6 +57,11 @@ function startGame() {
   G.elapsed = 0;
   G.rep = 0;
   G.startedAt = G.time;
+  // Spawn on foot beside the car, facing it, so ENTER is one step away.
+  G.player.x = G.car.x - 3; G.player.z = G.car.z + 2;
+  G.player.heading = Math.atan2(-(G.car.z - G.player.z), G.car.x - G.player.x);
+  G.player.group.position.set(G.player.x, 0, G.player.z);
+  G.player.group.rotation.y = -G.player.heading;
   showDialogue('rae', 9);
   sfxUi();
 }
@@ -74,7 +83,9 @@ function enterCar() {
     G.car.inCar = true;
     G.player.onFoot = false;
     G.player.group.visible = false;
-    G.car.heading = G.player.heading;
+    // Snap to the road grid: the player walks up to the car at an angle,
+    // but the car must leave along the road, not diagonally off it.
+    G.car.heading = Math.round(G.player.heading / (Math.PI / 2)) * (Math.PI / 2);
     sfxUi();
   }
 }
@@ -129,29 +140,33 @@ function updateCamera(dt) {
   const cam = G.camera;
   let px, py, pz, lx, ly, lz;
   if (G.shot === 'start') {
-    // Wide establishing: high and to the side, the whole beachfront,
-    // ferris wheel and ocean in frame, the car small below.
-    px = G.car.x - 42; py = 40; pz = G.car.z + 52;
-    lx = G.car.x + 34; ly = 2; lz = -18;
+    // Wide establishing: high on the city side of the road, looking
+    // north across the car, the boardwalk and the sand to the ocean.
+    // The car sits small mid-frame, the ferris wheel stands to the
+    // right, sand and ocean run across the back of the frame.
+    px = G.car.x - 32; py = 22; pz = G.car.z - 18;
+    lx = G.car.x + 20; ly = 1; lz = -6;
   } else if (G.shot === 'chase') {
     const f = [Math.cos(G.car.heading), -Math.sin(G.car.heading)];
-    px = G.car.x - f[0] * 10.5 + 3.2; py = 4.8; pz = G.car.z - f[1] * 10.5 + 2.4;
-    lx = G.car.x + f[0] * 10; ly = 2; lz = G.car.z - f[1] * 10;
+    px = G.car.x - f[0] * 11 + 4; py = 5.5; pz = G.car.z - f[1] * 11 + 2.4;
+    lx = G.car.x + f[0] * 10; ly = 4; lz = G.car.z + f[1] * 10;
   } else if (G.shot === 'mission') {
     const f = [Math.cos(G.player.heading), -Math.sin(G.player.heading)];
     px = G.player.x - f[0] * 6.2; py = 2.7; pz = G.player.z - f[1] * 6.2 + 1.4;
-    lx = G.player.x + f[0] * 5; ly = 1.4; lz = G.player.z - f[1] * 5;
+    lx = G.player.x + f[0] * 5; ly = 1.4; lz = G.player.z + f[1] * 5;
   } else if (G.shot === 'end') {
-    px = G.car.x - 8; py = 3.4; pz = G.car.z + 7;
-    lx = -248; ly = 8; lz = -38;
+    // Loop complete at the lighthouse: the car parked in front of the
+    // tower, the tower rising behind it, ocean beyond.
+    px = G.car.x + 18; py = 6; pz = G.car.z + 16;
+    lx = G.car.x - 6; ly = 2; lz = G.car.z - 4;
   } else if (G.car.inCar) {
     // Low close rear three-quarter: the car's flank, hood slope, raked
     // glass and wheels all read in one frame.
     const h = G.car.heading;
     const fx = Math.cos(h), fz = -Math.sin(h);
     const rx = Math.sin(h), rz = Math.cos(h);
-    px = G.car.x - fx * 6.8 + rx * 2.2; py = 2.7; pz = G.car.z - fz * 6.8 + rz * 2.2;
-    lx = G.car.x + fx * 7; ly = 1.2; lz = G.car.z - fz * 7;
+    px = G.car.x - fx * 7.6 + rx * 3.4; py = 2.4; pz = G.car.z - fz * 7.6 + rz * 3.4;
+    lx = G.car.x + fx * 7; ly = 1.2; lz = G.car.z + fz * 7;
   } else if (G.mode === 'menu') {
     const a = G.time * 0.08;
     px = G.car.x + Math.cos(a) * 26; py = 12; pz = G.car.z + Math.sin(a) * 26;
@@ -160,7 +175,7 @@ function updateCamera(dt) {
     const h = G.player.heading;
     const fx = Math.cos(h), fz = -Math.sin(h);
     px = G.player.x - fx * 5.5; py = 2.5; pz = G.player.z - fz * 5.5;
-    lx = G.player.x + fx * 5; ly = 1.4; lz = G.player.z - fz * 5;
+    lx = G.player.x + fx * 5; ly = 1.4; lz = G.player.z + fz * 5;
   }
   const k = 1 - Math.exp(-dt * (G.shot ? 10 : 5));
   camPos.x += (px - camPos.x) * k;
@@ -213,6 +228,12 @@ function animate() {
     G.marker.mesh.scale.set(s, s, 1);
   }
   updateCamera(dt);
+  if (G.tod === 'night') {
+    carLight.intensity = 70;
+    carLight.position.set(G.car.inCar ? G.car.x : G.player.x, 7, G.car.inCar ? G.car.z : G.player.z);
+  } else {
+    carLight.intensity = 0;
+  }
   updateHud();
   G.renderer.render(G.scene, G.camera);
 }

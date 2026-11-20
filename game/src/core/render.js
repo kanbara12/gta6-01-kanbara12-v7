@@ -12,7 +12,7 @@ function skyTexture(top, mid, low) {
   c.width = 4; c.height = 256;
   const ctx = c.getContext('2d');
   const grad = ctx.createLinearGradient(0, 0, 0, 256);
-  grad.addColorStop(0, top); grad.addColorStop(0.55, mid); grad.addColorStop(1, low);
+  grad.addColorStop(0, top); grad.addColorStop(0.5, mid); grad.addColorStop(0.78, '#ff7a2e'); grad.addColorStop(1, low);
   ctx.fillStyle = grad; ctx.fillRect(0, 0, 4, 256);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -80,7 +80,7 @@ export function buildSky(tod) {
       new THREE.CircleGeometry(34, 40),
       new THREE.MeshBasicMaterial({ color: 0xffd27a, fog: false }),
     );
-    sun.position.set(-420, 62, -620);
+    sun.position.set(-250, 60, -120);
     sun.lookAt(0, 40, 0);
     scene.add(sun);
     G.sunDisc = sun;
@@ -90,6 +90,7 @@ export function buildSky(tod) {
     glow.position.copy(sun.position);
     glow.scale.set(320, 320, 1);
     scene.add(glow);
+    G.sunGlow = glow;
   }
 
   // Soft clouds, never hard rectangles: stretched glow blobs, pink at
@@ -110,7 +111,7 @@ export function buildSky(tod) {
   const hemi = new THREE.HemisphereLight(
     sunset ? 0xffb37a : 0x4a5a8a,
     sunset ? 0x6b4a3a : 0x1a2038,
-    sunset ? 0.85 : 0.5,
+    sunset ? 1.1 : 0.5,
   );
   scene.add(hemi);
   const sunLight = new THREE.DirectionalLight(sunset ? 0xffb060 : 0x8fa0d8, sunset ? 2.0 : 0.7);
@@ -122,7 +123,7 @@ export function buildSky(tod) {
   sunLight.shadow.camera.far = 900;
   scene.add(sunLight);
   // Warm bounce from the east so sunset-facing walls never go void black.
-  const bounce = new THREE.DirectionalLight(0xff9a5a, 0.55);
+  const bounce = new THREE.DirectionalLight(0xff9a5a, 0.95);
   bounce.position.set(220, 60, 140);
   scene.add(bounce);
   G.lights = { hemi, sunLight, bounce };

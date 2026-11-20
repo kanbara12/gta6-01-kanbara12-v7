@@ -38,7 +38,7 @@ export function updatePolice(dt) {
   const pz = G.car.inCar ? G.car.z : G.player.z;
   const want = G.wanted;
   G.police.forEach((u, i) => {
-    const shouldShow = (want > 0 || G.shotPolice) && G.mode === 'play';
+    const shouldShow = (want > 0 || G.shotPolice) && !G.suppressPolice && G.mode === 'play';
     u.active = shouldShow;
     u.group.visible = shouldShow;
     if (!shouldShow) { u.placed = false; return; }
@@ -100,7 +100,7 @@ function ensureRoadblocks(px, pz) {
     const ahead = 55 + i * 14;
     const hx = Math.cos(G.car.heading || 0), hz = -Math.sin(G.car.heading || 0);
     r.car.position.set(px + hx * ahead, 0, pz + hz * ahead + (i === 0 ? -4 : 4));
-    r.car.rotation.y = -(G.car.heading || 0) + Math.PI / 2;
+    r.car.rotation.y = -(G.car.heading || 0) + Math.PI;
     r.barrier.position.set(px + hx * (ahead + 3), 0.55, pz + hz * (ahead + 3) + (i === 0 ? 4 : -4));
     r.barrier.rotation.y = -(G.car.heading || 0);
   });

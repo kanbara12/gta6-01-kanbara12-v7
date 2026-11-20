@@ -40,7 +40,7 @@ export function buildCity() {
   sand.receiveShadow = true; scene.add(sand);
 
   const water = new THREE.Mesh(new THREE.PlaneGeometry(760, 420),
-    new THREE.MeshStandardMaterial({ map: waterTexture(), roughness: 0.35, metalness: 0.25 }));
+    new THREE.MeshStandardMaterial({ map: waterTexture(), color: 0x9fc8d8, roughness: 0.3, metalness: 0.2 }));
   water.material.map.repeat.set(6, 4);
   water.rotation.x = -Math.PI / 2; water.position.set(0, -0.15, -260);
   scene.add(water);
@@ -81,7 +81,7 @@ export function buildCity() {
   // Buildings: varied heights and palettes, lit windows, warm bounce
   // keeps the sunset-facing walls readable.
   const winTex = PALETTES.map((p, i) => windowsTexture(p.base, p.lit, 0.55, 11 + i * 7));
-  const topMat = new THREE.MeshStandardMaterial({ color: 0x241f1c, roughness: 1 });
+  const topMat = new THREE.MeshStandardMaterial({ color: 0x54463a, roughness: 1 });
   let count = 0;
   const blocked = (x, z) =>
     (z > 108 && z < 132) || [-160, -80, 0, 80, 160].some((cx) => Math.abs(x - cx) < 12) ||
@@ -144,12 +144,12 @@ function buildPalms(rnd) {
     const g = new THREE.Group();
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.34, h, 6), trunkMat);
     trunk.position.y = h / 2; trunk.castShadow = true; g.add(trunk);
-    const fronds = 7;
+    const fronds = 9;
     for (let f = 0; f < fronds; f++) {
-      const fr = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 3.4), frondMats[f % 3]);
+      const fr = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 3.8), frondMats[f % 3]);
       fr.position.y = h + 0.2;
       fr.rotation.y = (f / fronds) * Math.PI * 2;
-      fr.rotation.x = -0.9 - rnd() * 0.35;
+      fr.rotation.x = -1.05 - rnd() * 0.3;
       fr.translateY(1.2);
       g.add(fr);
     }
@@ -206,6 +206,9 @@ function buildFerrisWheel() {
     leg.position.set(s * 6, -8, 0); leg.rotation.z = s * 0.35; g.add(leg);
   }
   g.position.set(35, 17, -16);
+  // Turned 45 degrees so the rim reads as a wheel from the beach road
+  // (looking east) and from the ocean side (looking south) alike.
+  g.rotation.y = Math.PI / 4;
   G.scene.add(g);
   G.wheel = g;
 }

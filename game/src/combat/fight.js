@@ -47,7 +47,7 @@ export function buildPlayerFigure() {
 }
 
 export function buildEnemies() {
-  const spots = [[128, 138], [152, 142], [146, 164]];
+  const spots = [[128, 138], [152, 142], [134, 146]];
   spots.forEach(([x, z], i) => {
     const g = new THREE.Group();
     const shirt = new THREE.MeshStandardMaterial({ color: 0x8e2f26, roughness: 0.9 });
@@ -116,7 +116,7 @@ export function updateCombat(dt) {
   const flashing = G.time < G.flashUntil;
   if (p.flashMat) {
     p.flashMat.opacity = flashing ? 0.95 : 0;
-    p.flashLight.intensity = flashing ? 26 : 0;
+    p.flashLight.intensity = flashing ? 14 : 0;
   }
   // Enemies edge toward the player and shoot back inside 20 metres.
   for (const e of G.enemies) {

@@ -54,7 +54,7 @@ export function sandTexture() {
 
 export function waterTexture() {
   const [c, ctx] = canvas(256, 256);
-  ctx.fillStyle = '#1d5f7a'; ctx.fillRect(0, 0, 256, 256);
+  ctx.fillStyle = '#2f7d9c'; ctx.fillRect(0, 0, 256, 256);
   ctx.strokeStyle = 'rgba(255,255,255,0.25)';
   ctx.lineWidth = 2;
   for (let i = 0; i < 26; i++) {
